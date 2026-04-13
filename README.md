@@ -1,151 +1,150 @@
-# Final-Project
-
-ShopNaija Daily Sales ETL Pipeline
+# Final project
 
 
 
-1️ Project Title and Description
+ShopNaija Daily Data Pipeline
+ Project Overview
 
-This project builds an automated ETL (Extract, Transform, Load) pipeline for ShopNaija, a Nigerian e-commerce platform. The pipeline extracts daily sales data from a CSV file, combines it with customer data from Supabase, converts prices from USD to Naira using a live API, cleans and validates the data, and loads the final dataset into a centralized database table for reporting.
+ShopNaija is a fast-growing Nigerian e-commerce platform operating across Lagos, Abuja, and Port Harcourt. This project builds an automated data pipeline that consolidates daily sales, customer data, and live exchange rates into a centralized reporting table.
 
+The pipeline performs data extraction, cleaning, transformation, validation, and loading (ETL) — and runs automatically every day at 7:00 AM using a cron job.
 
+ Data Sources
+1. Sales Data (CSV Files)
+Daily CSV file containing previous day’s sales
 
-2️ Data Sources
+File format:
 
-The pipeline uses three different data sources:
+sales_YYYY-MM-DD.csv
+Automatically selected using a dynamic date variable (D_MINUS_1)
+2. Customer Data (Supabase Database)
+Stored in a Supabase PostgreSQL database
+Table: customers
+Contains:
+Customer ID
+Full Name
+City
+Loyalty Tier
+3. Exchange Rate API
 
- 1. Sales CSV File
-	•	Contains daily transaction data
-	•	Includes: order_id, product_name, category, quantity, unit_price_usd, order_date, customer_id, status
-	•	File is dynamically selected using yesterday’s date (D_MINUS_1)
+Endpoint:
 
+https://open.er-api.com/v6/latest/USD
+Provides real-time USD → NGN conversion rate
+Used to convert all sales values to Naira
+ How to Run the Project
+1. Clone the Repository
+git clone https://github.com/your-username/shopnaija-data-pipeline.git
+cd shopnaija-data-pipeline
+2. Install Dependencies
+pip install pandas requests sqlalchemy psycopg2-binary python-dotenv
+3. Set Up Environment Variables
 
+Create a .env file:
 
- 2. Supabase Database (Customers Table)
-	•	Stores customer information
-	•	Includes: customer_id, name, city, loyalty_tier
-	•	Data is fetched using the Supabase Python client
-
-
-
- 3. Exchange Rate API
-	•	URL: https://open.er-api.com/v6/latest/USD
-	•	Provides real-time USD → NGN exchange rate
-	•	Used to convert prices from USD to Naira
-
-
-
- How to Run
-
-Follow these steps to run the project:
-
-Step 1: Clone the repository
-git clone <your-repo-link>
-cd <your-project-folder>
-
-2. Install required libraries
-pip install pandas requests supabase
-
-Step 3: Set environment variables (IMPORTANT)
-
-Do NOT hardcode credentials in your code.
-export SUPABASE_URL=your_url
-export SUPABASE_KEY=your_key
-
-tep 4: Run the pipeline
-
-In Jupyter Notebook or Python:
-un_pipeline()
-
-Pipeline Flow
-
-The pipeline follows this order:
-
+DB_HOST=your_host
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=your_user
+DB_PASSWORD=your_password
+4. Run the Pipeline
+python main.py
+ Pipeline Flow
 Extract → Transform → Validate → Load
-Flow Explanation:
-	•	Extract: Read CSV, fetch customers, call API
-	•	Transform: Clean data, merge datasets, calculate values
-	•	Validate: Check data quality rules
-	•	Load: Insert into Supabase table
 
-  Data Cleaning Decisions
+Steps Explained:
 
-Several cleaning steps were applied to ensure data quality:
-	•	Dropped duplicate rows
-→ Prevents double-counting of sales
-	•	Removed rows with missing unit_price_usd or customer_id
-→ These are critical fields needed for calculations and joins
-	•	Standardized column names (lowercase, no spaces)
-→ Ensures consistency and prevents errors
-	•	Removed cancelled orders
-→ Cancelled transactions should not be included in revenue analysis
-	•	Converted USD to NGN
-→ Ensures business reporting is in local currency
-	•	Handled missing values (NaN → None)
-→ Required for successful database insertion
+Extract data from CSV, Supabase, and API
+Clean and transform the data
+Validate data quality
+Load into Supabase
+ Data Cleaning Decisions
+Removed duplicates
+Ensures no repeated sales records
+Dropped missing values
+unit_price_usd → required for calculations
+customer_id → required for merging
+Standardized column names
+Lowercase and no spaces for consistency
+Filtered cancelled orders
+Only valid transactions are included
+Currency conversion
+USD → NGN using live exchange rate
+Derived columns added
+unit_price_ngn
+total_value_ngn
+ Data Validation
 
-Cron Job Setup
+The pipeline checks:
 
-The pipeline was automated using a cron job to run daily.
+No null values in final dataset
+All quantity values > 0
+All unit_price_usd values > 0
 
-Steps:
-	1.	Open terminal
-2. Run
-crontab -e
- 0 7 * * * /usr/bin/python3 /path/to/your/script.py
- This runs the pipeline every day at 7 AM.
+ If any check fails:
+
+A warning is printed
+Pipeline continues running (no crash)
+ Data Loading
+
+Final dataset is loaded into Supabase table:
+
+daily_sales_report
+Output includes:
+Customer details
+Cleaned sales data
+NGN values
+ Cron Job Automation
+
+The pipeline runs automatically every day at 7:00 AM.
+
+Example Cron Job:
+0 7 * * * /usr/bin/python3 /path/to/your/project/main.py
+Explanation:
+0 7 * * * → Runs daily at 7:00 AM
+Executes the pipeline script automatically
+
+ (Insert screenshot of your crontab setup here)
 
  Sample Output
 
-After running the pipeline, the cleaned data is stored in Supabase table:
+After execution, the daily_sales_report table contains:
 
-daily_sales_report
+Cleaned and merged dataset
+NGN-converted prices
+Valid transactions only
 
-The table includes:
-	•	Sales data
-	•	Customer details
-	•	Prices in USD and NGN
-	•	Total transaction values
+ (Insert screenshot of Supabase table here)
 
-
-
-
-
-8️ Challenges and Learnings
-
- Challenges:
-	•	Handling JSON errors during data insertion
-	•	Fixing Timestamp and NaN issues
-	•	Debugging column mismatches (e.g., quantity, status)
-	•	Understanding how merging affects column names
-
-
-
- Learnings:
-	•	Importance of data cleaning before loading
-	•	How APIs integrate into ETL pipelines
-	•	How to debug real-world data issues
-	•	Best practices for structuring pipelines
-
-
-
- What I would improve next time:
-	•	Add better logging system
-	•	Automate file detection more robustly
-	•	Add error alerting (email/notifications)
-	•	Build a dashboard for visualization
-
-
-
- Conclusion
-
-This project demonstrates the full lifecycle of a real-world data pipeline — from extracting raw data to delivering clean, structured insights into a database. It reflects practical data engineering skills used in modern applications.
-
-
-
-
-
-Afolabi Khalid
-
-Junior Data Engineer Project
-:::
+ Challenges & Learnings
+Challenges
+Handling dynamic file naming using dates
+Connecting securely to Supabase
+Managing API requests reliably
+Ensuring clean merges between datasets
+Learnings
+Importance of modular pipeline design (functions)
+Real-world data is messy — cleaning is critical
+Automation (cron jobs) is essential in production
+Validation ensures trust in data
+Project Structure
+shopnaija-data-pipeline/
+│
+├── main.py
+├── pipeline/
+│   ├── extract.py
+│   ├── transform.py
+│   ├── validate.py
+│   └── load.py
+│
+├── data/
+│   └── sales_YYYY-MM-DD.csv
+│
+├── .env
+├── requirements.txt
+└── README.md
+ Future Improvements
+Add logging system instead of print statements
+Implement retry logic for API failures
+Add unit tests for each function
+Deploy pipeline using Airflow or Prefect
