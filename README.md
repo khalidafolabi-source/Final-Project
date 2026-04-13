@@ -2,8 +2,8 @@
 
 
 
-ShopNaija Daily Data Pipeline
- Project Overview
+#### ShopNaija Daily Data Pipeline
+ ###### Project Overview
 
 ShopNaija is a fast-growing Nigerian e-commerce platform operating across Lagos, Abuja, and Port Harcourt. This project builds an automated data pipeline that consolidates daily sales, customer data, and live exchange rates into a centralized reporting table.
 
@@ -15,7 +15,7 @@ Daily CSV file containing previous day’s sales
 
 File format:
 
-sales_YYYY-MM-DD.csv
+### sales_YYYY-MM-DD.csv
 Automatically selected using a dynamic date variable (D_MINUS_1)
 2. Customer Data (Supabase Database)
 Stored in a Supabase PostgreSQL database
@@ -43,11 +43,15 @@ pip install pandas requests sqlalchemy psycopg2-binary python-dotenv
 Create a .env file:
 
 DB_HOST=your_host
+
 DB_PORT=5432
+
 DB_NAME=postgres
+
 DB_USER=your_user
+
 DB_PASSWORD=your_password
-4. Run the Pipeline
+4.#### Run the Pipeline
 python main.py
  Pipeline Flow
 Extract → Transform → Validate → Load
@@ -104,7 +108,7 @@ Explanation:
 0 7 * * * → Runs daily at 7:00 AM
 Executes the pipeline script automatically
 
- (Insert screenshot of your crontab setup here)
+ 
 
  Sample Output
 
@@ -114,7 +118,7 @@ Cleaned and merged dataset
 NGN-converted prices
 Valid transactions only
 
- (Insert screenshot of Supabase table here)
+
 
  Challenges & Learnings
 Challenges
@@ -127,23 +131,39 @@ Importance of modular pipeline design (functions)
 Real-world data is messy — cleaning is critical
 Automation (cron jobs) is essential in production
 Validation ensures trust in data
-Project Structure
-shopnaija-data-pipeline/
+# Project Structure
+ 
+ 
+ shopnaija-data-pipeline/
 │
+
+
 ├── main.py
+
 ├── pipeline/
+
 │   ├── extract.py
+
 │   ├── transform.py
+
 │   ├── validate.py
+
 │   └── load.py
+
 │
+
 ├── data/
+
 │   └── sales_YYYY-MM-DD.csv
+
 │
+
 ├── .env
+
 ├── requirements.txt
+
 └── README.md
- Future Improvements
+### Future Improvements
 Add logging system instead of print statements
 Implement retry logic for API failures
 Add unit tests for each function
